@@ -60,16 +60,16 @@ class SignUpView(View):
 class CustomPasswordResetView(View):
     def post(self, request, *args, **kwargs):
         email = request.POST.get('email')
+        
         print(email)
         # Replace 'email' with the actual name of the email input field in your HTML form
-        
         user = CustomUser.objects.get(email=email)
-        token = default_token_generator.make_token(user)
         user_pk= CustomUser.objects.get(email=email)
         # Generate the uidb64 value
         uidb64 = urlsafe_base64_encode(force_bytes(email))
         current_site = get_current_site(request)
-        confirmation_url = reverse('password_change_done', kwargs={'user':user,'uidb64':uidb64 , 'token': token})
+        token = default_token_generator.make_token(user)
+        confirmation_url = reverse('password_change_done', kwargs={'uidb64':uidb64 , 'token': token})
         # Replace 'uidb64' with the actual name of the parameter in your URL pattern
         
         activation_link = f'http://{current_site.domain}{confirmation_url}'
@@ -92,28 +92,31 @@ class PasswordChangeDone(View):
     template_name = 'auth/password_confirm.html'
 
     def validate_user_token(self, uidb64, token):
-        #try:
-            email =base64.urlsafe_b64decode(uidb64)
+        try:
+            email_bytes =base64.urlsafe_b64decode(uidb64)
+            email = email_bytes.decode('utf-8')
+
             you='abdullahishuaibumaje@gmail.com'
-            user = CustomUser.objects.get(email=you)
+            user = CustomUser.objects.get(email=email)
             if default_token_generator.check_token(user, token):
-                return email
-            else:
-                return email
-        #except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-        #    pass
-        #return None
+                return user
+            
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+           pass
+        return None
 
     def get(self, request, uidb64, token):
         user = self.validate_user_token(uidb64, token)
         if user is not None:
-            context = {'valid_link': user is not None, 'uidb64': uidb64, 'token': token}
+            context = {'valid_link': user is not None, 'uidb64': uidb64, 'token': token,'user':user}
             return render(request, self.template_name, context)
         else:
             context={'user':user,'uidb64':uidb64,'token':token}
             return render(request,self.template_name,context)
 
     def post(self, request, uidb64, token):
+        uidb64 = request.POST.get('uidb64')
+        token = request.POST.get('token')
         user = self.validate_user_token(uidb64, token)
         if user is not None:
             password = request.POST.get('password')
@@ -123,7 +126,7 @@ class PasswordChangeDone(View):
             user.save()
 
             # Password successfully changed. You can add any additional logic or redirect as needed.
-            return redirect('password_change_done')  # Replace with your desired URL
+            return redirect('DashBoard')  # Replace with your desired URL
 
         context = {'valid_link': False, 'uidb64': uidb64, 'token': token, 'invalid_password': True}
         return render(request, self.template_name, context)
