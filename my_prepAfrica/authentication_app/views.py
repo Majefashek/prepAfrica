@@ -62,7 +62,7 @@ class CustomPasswordResetView(View):
         email = request.POST.get('email')
         
         # Replace 'email' with the actual name of the email input field in your HTML form
-        
+        print("it worked")
         user = CustomUser.objects.get(email=email)
         token = default_token_generator.make_token(user)
         user_pk= CustomUser.objects.get(email=email)
