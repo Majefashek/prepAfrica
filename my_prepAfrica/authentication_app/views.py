@@ -60,6 +60,7 @@ class SignUpView(View):
 class CustomPasswordResetView(View):
     def post(self, request, *args, **kwargs):
         email = request.POST.get('email')
+        
         # Replace 'email' with the actual name of the email input field in your HTML form
         
         user = CustomUser.objects.get(email=email)
