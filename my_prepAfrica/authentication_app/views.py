@@ -117,6 +117,7 @@ class PasswordChangeDone(View):
     def post(self, request, uidb64, token):
         uidb64 = request.POST.get('uidb64')
         token = request.POST.get('token')
+        
         user = self.validate_user_token(uidb64, token)
         if user is not None:
             password = request.POST.get('password')
@@ -128,7 +129,7 @@ class PasswordChangeDone(View):
             # Password successfully changed. You can add any additional logic or redirect as needed.
             return redirect('DashBoard')  # Replace with your desired URL
 
-        context = {'valid_link': False, 'uidb64': uidb64, 'token': token, 'invalid_password': True}
+        context = {'valid_link': False, 'uidb64': uidb64, 'token': token, 'invalid_password': True,'user':user}
         return render(request, self.template_name, context)
     
 
