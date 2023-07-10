@@ -1,0 +1,5 @@
+
+{% for test in tests %}
+<a class="navbar-brand" href="{% url 'evaluate_test' test.id %}"> {{test.title}}</a>
+{% endfor %}
+       

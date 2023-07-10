@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication_app',
     'core_app',
+    'SubjectSelection',
+    'Tests'
 ]
 
 MIDDLEWARE = [

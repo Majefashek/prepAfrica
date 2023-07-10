@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multiple Choice Question</title>
+  <style>
+    .question {
+      font-weight: bold;
+    }
+    .options {
+      list-style-type: none;
+      padding: 0;
+    }
+    .options li {
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: inline-block;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+    <h1>Hello<h1>
+<form method="post" action=""> 
+  {% csrf_token %}
+  {{page_obj.paginator.num_pages}}
+  
+    {% for q in page_obj %}
+  <div class="question">
+    <p>{{ q.question_text }}</p>
+  </div>
+  <input type="hidden" name="question_id" value="{{ q.id }}">
+  <div class="options">
+    <ul>
+      {% for o in q.options.all %}
+      
+        <li>
+          <label>
+            <input type="radio"  name="selected_option" value="{{ o.id }}">
+            {{ o.option_text }}
+          </label>
+        </li>
+    {% endfor %}
+
+
+
+    </ul>
+  </div>
+{% endfor %}
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  
+  <span class="current-page">{{ page_obj.number }}</span>
+  
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+  {% else %}
+    <button type="submit">Submit</button>
+  {% endif %}
+  </form>
+</div>
+
+</body>
+</html>
