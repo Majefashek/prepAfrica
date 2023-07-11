@@ -20,6 +20,8 @@
   </style>
 </head>
 <body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <h1>Hello<h1>
 <form method="post" action=""> 
   {% csrf_token %}
@@ -41,9 +43,6 @@
           </label>
         </li>
     {% endfor %}
-
-
-
     </ul>
   </div>
 {% endfor %}
@@ -61,6 +60,28 @@
   {% endif %}
   </form>
 </div>
+<script>
+  $(document).ready(function() {
+  $('[name=selected_option]').click(function() {
+    let selected_option_id = $(this).val();
+    let question_id = $('[name=question_id]').val();
+    
+    let answers = JSON.parse(localStorage.getItem('answers') || '{}');
+    answers[question_id] = selected_option_id;
+    
+    localStorage.setItem('answers', JSON.stringify(answers));
+  });
+
+  $('form').onsubmit(function(e)
+    e.preventDefault());
+    let data=localStorage.getItem('answers');
+    .(ajax({
+      url:
+    }))
+
+});
+
+</script>
 
 </body>
 </html>
