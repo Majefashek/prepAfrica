@@ -23,8 +23,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <h1>Hello<h1>
-<form method="post" action=""> 
-  {% csrf_token %}
+<form method="post" action=""  data-test="{{test.id}}"> 
+   {% csrf_token %}
+  <input type="hidden" />
   {{page_obj.paginator.num_pages}}
   
     {% for q in page_obj %}
@@ -61,25 +62,55 @@
   </form>
 </div>
 <script>
-  $(document).ready(function() {
+$(document).ready(function() {
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+      xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    },
+  });
+
   $('[name=selected_option]').click(function() {
     let selected_option_id = $(this).val();
     let question_id = $('[name=question_id]').val();
-    
+
     let answers = JSON.parse(localStorage.getItem('answers') || '{}');
+    //let answers = localStorage.getItem('answers') || '{}';
     answers[question_id] = selected_option_id;
-    
+
     localStorage.setItem('answers', JSON.stringify(answers));
+    //localStorage.setItem('answers', answers);
   });
 
-  $('form').onsubmit(function(e)
-    e.preventDefault());
-    let data=localStorage.getItem('answers');
-    .(ajax({
-      url:
-    }))
+  $('form').on('submit', function(e) {
+    e.preventDefault();
+    let test_id = $(this).data('test');
+    let answers = localStorage.getItem('answers');
+    let data = {
+        answers: JSON.parse(answers)
+    };
 
+    $.ajax({
+      url: window.location.href + "tests/test/" + test_id + "/evaluate/",
+      method: "post",
+      data: JSON.stringify(data),
+      contentType: 'application/json',
+      success: function(response) {
+        console.log(response.data);
+        console.log("Success!", response);
+        // Delete the 'answers' key from the local storage
+        localStorage.removeItem('answers');
+        var testId = response.testId; // Assuming the test ID is provided in the response
+        var redirectUrl = 'http://localhost:8000/tests/viewtest/' + testId;
+        window.location.href = redirectUrl;
+      },
+      error: function(xhr, status, error) {
+        console.log("Error:", error);
+      }
+    });
+  });
 });
+
 
 </script>
 
