@@ -1,56 +1,43 @@
 from django.shortcuts import render, redirect
 from .models import Subjects, Unit, Lesson
 from django.views import View
+from rest_framework import generics
+from .serializers import SubjectsSerializer,UnitSerializer,LessonSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.http import JsonResponse
 
-class ManageSubjects(View):
-    template_name = "subjects/manage_subjects.html"
+class ViewSubjects(generics.ListAPIView):
+    queryset = Subjects.objects.all()
+    serializer_class = SubjectsSerializer
 
-    def get(self, request):
-        subjects = Subjects.objects.all()
-        return render(request, self.template_name, {'subjects': subjects})
+#class AddSubject(generics.CreateAPIView):
+#    serializer_class = SubjectsSerializer
 
+class ViewUnits(generics.ListAPIView):
+    serializer_class = UnitSerializer
 
-class AddSubject(View):
-    template_name = "subjects/add_subject.html"
+    def get_queryset(self):
+        subject_id = self.kwargs['subject_id']
+        return Unit.objects.filter(subject_id=subject_id)
 
-    def get(self, request):
-        return render(request, self.template_name)
+class ViewLessons(generics.ListAPIView):
+    serializer_class = LessonSerializer
 
-    def post(self, request):
-        title = request.POST.get('title')
-        enrolled_users = request.POST.getlist('enrolled_users')
-        exam_type_id = request.POST.get('exam_type')
-
-        subject = Subjects.objects.create(title=title, exam_type_id=exam_type_id)
-
-        for user_id in enrolled_users:
-            subject.enrolled_user.add(user_id)
-
-        return redirect('manage_subjects')
-
-
-class RemoveSubject(View):
-
-    def get(self, request, subject_id):
-        subject = Subjects.objects.get(id=subject_id)
-        subject.delete()
-        return redirect('manage_subjects')
-
-
-class ViewUnits(View):
-    template_name = "subjects/view_units.html"
-
-    def get(self, request, subject_id):
-        subject = Subjects.objects.get(id=subject_id)
-        units = Unit.objects.filter(subject=subject)
-        return render(request, self.template_name, {'subject': subject, 'units': units})
-
-
-class ViewLessons(View):
-    template_name = "subjects/view_lessons.html"
-
-    def get(self, request, unit_id):
-        unit = Unit.objects.get(id=unit_id)
-        lessons = Lesson.objects.filter(subject=unit.subject)
-        return render(request, self.template_name, {'unit': unit, 'lessons': lessons})
-
+    def get_queryset(self):
+        unit_id = self.kwargs['unit_id']
+        return Lesson.objects.filter(subject__unit__id=unit_id)
+    
+class SearchView(APIView):
+    def get(self, request, **kwargs):
+        querystring = kwargs['query']
+        Units= Unit.objects.filter(title__icontains=querystring)
+        subjects= Subjects.objects.filter(title__icontains=querystring)
+        unit_serialized = UnitSerializer(Units, many=True)
+        subject_serialized = SubjectsSerializer(subjects, many=True)
+        data = {
+            "units": unit_serialized.data,
+            "subjects": subject_serialized.data
+        }
+        return Response(data)
+    
