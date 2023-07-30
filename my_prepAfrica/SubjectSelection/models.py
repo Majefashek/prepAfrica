@@ -12,25 +12,32 @@ class Subjects(models.Model):
         return self.title
 
 class Enrollment(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
+    subject = models.ForeignKey(Subjects, on_delete=models.DO_NOTHING)
 
 
 class Unit(models.Model):
     title = models.CharField(blank=True, max_length=50)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subjects, on_delete=models.DO_NOTHING)
     image = models.ImageField(blank=True, upload_to='unit_images/', null=True)
+    
 
     def __str__(self):
         return self.title
     
 class Lesson(models.Model):
     title = models.CharField(blank=True, max_length=50)
-    video_url = models.URLField(blank=True, null=True)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE)
-
+    unit = models.ForeignKey(Unit, on_delete=models.DO_NOTHING,default=True)
+   
     def __str__(self):
         return self.title
+    
+class LessonVideo(models.Model):
+    title=models.CharField(max_length=50)
+    video_url = models.URLField(blank=True, null=True)
+    lesson=models.ForeignKey(Lesson,on_delete=models.CASCADE,null=True,blank=True,)
 
-
-# Create your models here.
+class MyLessonVideo(models.Model):
+    title=models.CharField(max_length=50)
+    video_url = models.URLField(blank=True, null=True)
+    

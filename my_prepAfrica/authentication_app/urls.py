@@ -1,10 +1,16 @@
 
 from django.urls import path, include
-from . views import LoginView,SignUpView,CustomPasswordResetView,PasswordChangeDone,EmailSentView
+from . views import SignUpView,CustomPasswordResetView,PasswordChangeDone,EmailSentView,MyTokenObtainPairView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 
 urlpatterns = [
-    path("login/",LoginView.as_view(),name="login"),
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    #path("login/",LoginView.as_view(),name="login"),
     path("signup/",SignUpView.as_view(),name="signup"),
     path("password_reset/",CustomPasswordResetView.as_view(), name="password_reset"),
     path("password_change_done/<str:uidb64>/<str:token>/", PasswordChangeDone.as_view(), name="password_change_done"),#email form,

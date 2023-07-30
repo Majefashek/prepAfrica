@@ -26,9 +26,18 @@ class CustomUser(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
+    username=models.CharField(blank=True,max_length=300)
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 
     def __str__(self):
         return self.email
+
+    def has_perm(self, perm, obj=None):
+        # For now, return True as a placeholder for user permissions.
+        return True
+
+    def has_module_perms(self, app_label):
+        # For now, return True as a placeholder for module permissions.
+        return True

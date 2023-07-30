@@ -9,6 +9,15 @@ from .serializers import TestSerializer, QuestionSerializer,OptionSerializer
 class MyTestView(generics.ListAPIView):
     queryset=Test.objects.all()
     serializer_class=TestSerializer
+
+class Myoptions(generics.ListAPIView):
+    queryset=Option.objects.all()
+    serializer_class=OptionSerializer
+
+class MyQuestions(generics.ListAPIView):
+    queryset=Question.objects.all()
+    serializer_class=QuestionSerializer
+   
    
 
 class TestEvaluationView(APIView):
@@ -42,7 +51,9 @@ class TestEvaluationView(APIView):
         test.correct_answers = correct_answers
         test.wrong_answers = wrong_answers
         test.save()
-        return Response({'testId': test_id}, status=status.HTTP_200_OK)
+        testserialized=TestSerializer(test)
+        mytest=testserialized.data
+        return Response(mytest)
 
 
 class ViewTestResult(generics.RetrieveAPIView):

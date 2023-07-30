@@ -13,59 +13,51 @@ from django.contrib.auth.tokens import default_token_generator
 import base64
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from .serializers import CustomTokenObtainPairSerializer
+from rest_framework.exceptions import ValidationError
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.views import APIView
+from .serializers import CustomUserSerializer
 
 
 
 
-class LoginView(View):
-    template_name = 'auth/login.html'
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+    pass
 
-    def get(self, request):
-        return render(request, self.template_name)
 
+class SignUpView(APIView):
     def post(self, request):
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        print(email)
+        print(password)
 
-        user = authenticate(request, email=email, password=password)
+        newuser, created = CustomUser.objects.get_or_create(email=email, defaults={'password': password})
 
-        if user is not None:
-            login(request, user)
-            return redirect('DashBoard')  
-        else:
-            return render(request, self.template_name, {'error_message': 'Invalid email or password'})
-
-
-class SignUpView(View):
-    template_name = 'auth/signup.html'
-    success_url = 'DashBoard'
-
-    def get(self, request):
-        return render(request, self.template_name)
-
-    def post(self, request):
-        email = request.POST['email']
-        password = request.POST['password']
-
-        existing_user = CustomUser.objects.filter(email=email).exists()
-
-        if existing_user:
+        if not created:
             # User with the same email already exists, handle the error accordingly
-            return render(request, self.template_name, {'error': 'User with this email already exists'})
+            return Response({'error': 'User with this email already exists'})
 
-        CustomUser.objects.create_user(email=email, password=password)
+        newuser_serialized = CustomUserSerializer(newuser)
+        userdata = newuser_serialized.data
+        return Response(userdata)
 
-        return redirect(self.success_url)
 
-class CustomPasswordResetView(View):
+class CustomPasswordResetView(APIView):
     def post(self, request, *args, **kwargs):
-        email = request.POST.get('email')
+        email = request.data.get('email')
         
         print(email)
         # Replace 'email' with the actual name of the email input field in your HTML form
-        user = CustomUser.objects.get(email=email)
-        user_pk= CustomUser.objects.get(email=email)
-        # Generate the uidb64 value
+        try:
+            user = CustomUser.objects.get(email=email)
+        except:
+            return Response({'Error':'User Does Not Exist'})
+                # Generate the uidb64 value
         uidb64 = urlsafe_base64_encode(force_bytes(email))
         current_site = get_current_site(request)
         token = default_token_generator.make_token(user)
@@ -79,17 +71,14 @@ class CustomPasswordResetView(View):
         email = EmailMessage(email_subject, email_body, to=[email])
         try:
             email.send()
-            return redirect('email_sent')
+            return Response({'success':'email_sent'})
         except Exception:
-            print(Exception)
+            e=Exception
+            return Response({'error':'Email Not Sent'})
 
-    def get(self,request):
-        template_name='auth/custom_password_reset.html'
-        return render(request, template_name)
     
 
-class PasswordChangeDone(View):
-    template_name = 'auth/password_confirm.html'
+class PasswordChangeDone(APIView):
 
     def validate_user_token(self, uidb64, token):
         try:
@@ -98,8 +87,10 @@ class PasswordChangeDone(View):
 
             you='abdullahishuaibumaje@gmail.com'
             user = CustomUser.objects.get(email=email)
+            userserialized=CustomUserSerializer(user)
+            myuser=userserialized.data
             if default_token_generator.check_token(user, token):
-                return user
+                return myuser
             
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
            pass
@@ -109,28 +100,26 @@ class PasswordChangeDone(View):
         user = self.validate_user_token(uidb64, token)
         if user is not None:
             context = {'valid_link': user is not None, 'uidb64': uidb64, 'token': token,'user':user}
-            return render(request, self.template_name, context)
+            return Response(context)
         else:
             context={'user':user,'uidb64':uidb64,'token':token}
-            return render(request,self.template_name,context)
+            return Response(context)
 
-    def post(self, request, uidb64, token):
-        uidb64 = request.POST.get('uidb64')
-        token = request.POST.get('token')
-        
-        user = self.validate_user_token(uidb64, token)
+    def post(self, request, uidb64, token): 
+        user_id = self.validate_user_token(uidb64, token)['id']
+        user=CustomUser.objects.get(id=user_id)
         if user is not None:
-            password = request.POST.get('password')
+            password = request.data.get('password')
             
             # Update the user's password
             user.set_password(password)
             user.save()
 
             # Password successfully changed. You can add any additional logic or redirect as needed.
-            return redirect('DashBoard')  # Replace with your desired URL
+            return Response('Success')  # Replace with your desired URL
 
         context = {'valid_link': False, 'uidb64': uidb64, 'token': token, 'invalid_password': True,'user':user}
-        return render(request, self.template_name, context)
+        return Response(context)
     
 
 class EmailSentView(TemplateView):
