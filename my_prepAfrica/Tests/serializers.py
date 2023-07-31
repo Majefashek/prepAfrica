@@ -17,8 +17,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class TestSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, read_only=True)
+    #questions = QuestionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Test
-        fields = '__all__'
+        fields = ['id', 'title','score','correct_answers','wrong_answers']

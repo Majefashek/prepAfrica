@@ -1,12 +1,11 @@
 from django.urls import path
-from .views import TestEvaluationView,MyTestView,ViewTestResult,Myoptions, MyQuestions
+from .views import TestEvaluationView,MyTestView,ViewTestResult,Myoptions, MyQuestions,MyLessonTests,MySubjectTests,MyUnitTests
 
 urlpatterns = [
-    path('test/<int:test_id>/evaluate/', TestEvaluationView.as_view(), name='evaluate_test'),
-    path('mytest',MyTestView.as_view(),name="mytest"),
-    #path('test/', TestEvaluationView.as_view(), name='evaluate_test'),
-    path('viewtest/<int:test_id>/',ViewTestResult.as_view(),name="viewtest"),
-    path('questions/',MyQuestions.as_view(),name="questions"),
-
-    path('options/',Myoptions.as_view(),name="options"),
+    path('evaluate/<int:test_id>/', TestEvaluationView.as_view(), name='evaluate_test'),
+    path('getSubjTest/<int:subject_id>/', MySubjectTests.as_view(), name='subject_tests'),
+    path('mytest/', MyTestView.as_view(), name='mytest'),
+    path('viewtest/<int:test_id>/', ViewTestResult.as_view(), name='viewtest'),
+    path('questions/', MyQuestions.as_view(), name='questions'),
+    #path('options/', MyOptions.as_view(), name='options'),
 ]
