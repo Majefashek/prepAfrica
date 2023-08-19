@@ -43,8 +43,8 @@ class GetEnrolledSubject(generics.ListAPIView):
 
 
 class ViewSubjects(generics.ListAPIView):
-    #authentication_classes = [JWTAuthentication]  # Use JWT Authentication
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]  # Use JWT Authentication
+    permission_classes = [IsAuthenticated]
     queryset = Subjects.objects.all()
     serializer_class = SubjectsSerializer
 
