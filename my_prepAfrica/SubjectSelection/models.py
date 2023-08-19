@@ -1,5 +1,7 @@
 from django.db import models
 from authentication_app.models import CustomUser
+#from ProgressTrackkingApp.models import ProgressTracker
+from django.utils import timezone
 
 
 class Subjects(models.Model):
@@ -20,6 +22,9 @@ class Unit(models.Model):
     title = models.CharField(blank=True, max_length=50)
     subject = models.ForeignKey(Subjects, on_delete=models.DO_NOTHING)
     image = models.ImageField(blank=True, upload_to='unit_images/', null=True)
+    #progress=models.ForeignKey(ProgressTracker, on_delete=models.CASCADE,null=True,blank=True)
+    
+
     
 
     def __str__(self):
@@ -28,6 +33,8 @@ class Unit(models.Model):
 class Lesson(models.Model):
     title = models.CharField(blank=True, max_length=50)
     unit = models.ForeignKey(Unit, on_delete=models.DO_NOTHING,default=True)
+    #progress=models.ForeignKey(ProgressTracker, on_delete=models.CASCADE,null=True,blank=True)
+    
    
     def __str__(self):
         return self.title

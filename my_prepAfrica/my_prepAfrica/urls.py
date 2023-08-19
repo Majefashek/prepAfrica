@@ -9,4 +9,5 @@ urlpatterns = [
     path('api/v1/subjects/',include('SubjectSelection.urls')),
     path('api/v1/tests/',include('Tests.urls')),
     path('api/v1/',include('subscription_app.urls')),
+    path('api/v1/', include('ProgressTrackkingApp.urls')),
 ]

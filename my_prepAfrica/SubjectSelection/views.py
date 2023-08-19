@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication 
+from django.db.models import OuterRef, Exists
+from ProgressTrackkingApp.models import ProgressTracker
 
 class EnrollSubject(APIView):
 
@@ -47,14 +49,23 @@ class ViewSubjects(generics.ListAPIView):
     serializer_class = SubjectsSerializer
 
 class ViewUnits(generics.ListAPIView):
-    #authentication_classes = [JWTAuthentication]  # Use JWT Authentication
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]  # Use JWT Authentication
+    permission_classes = [IsAuthenticated]
     serializer_class = UnitSerializer
 
-    def get_queryset(self):
-        subject_id = self.kwargs['subject_id']
-        return Unit.objects.filter(subject_id=subject_id)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 
+
+    def get_queryset(self):
+        user = self.request.user
+        subject_id = self.kwargs['subject_id']
+        subject=Subjects.objects.get(id=subject_id)
+        
+        # Initialize the UnitSerializer with the context {'user': user}
+        return Unit.objects.filter(subject=subject)
 class ViewLessons(generics.ListAPIView):
     authentication_classes = [JWTAuthentication]  # Use JWT Authentication
     permission_classes = [IsAuthenticated]

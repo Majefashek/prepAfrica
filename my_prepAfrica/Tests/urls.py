@@ -4,6 +4,8 @@ from .views import TestEvaluationView,MyTestView,ViewTestResult,Myoptions, MyQue
 urlpatterns = [
     path('evaluate/<int:test_id>/', TestEvaluationView.as_view(), name='evaluate_test'),
     path('getSubjTest/<int:subject_id>/', MySubjectTests.as_view(), name='subject_tests'),
+    path('getLessonTest/<int:lesson_id>/', MyLessonTests.as_view(), name='lesson_tests'),
+    path('getUnitTest/<int:unit_id>/', MyUnitTests.as_view(), name='unit_tests'),
     path('mytest/', MyTestView.as_view(), name='mytest'),
     path('viewtest/<int:test_id>/', ViewTestResult.as_view(), name='viewtest'),
     path('questions/', MyQuestions.as_view(), name='questions'),

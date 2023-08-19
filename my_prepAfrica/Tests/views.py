@@ -17,8 +17,8 @@ class MyUnitTests(APIView):
             unit_id = kwargs.get('unit_id')
             unit = Unit.objects.get(id=unit_id)
             test = Test.objects.filter(unit=unit)
-            test_serialized = TestSerializer(test)
-            return Response({'test': test_serialized})
+            test_serialized = TestSerializer(test,many=True)
+            return Response({'test': test_serialized.data})
         except Unit.DoesNotExist:
             raise NotFound('Unit not found.')
         except Test.DoesNotExist:
@@ -41,9 +41,9 @@ class MyLessonTests(APIView):
     def get(self,request,**kwargs):
         try:
             lesson_id = kwargs.get('lesson_id')
-            subject = Lesson.objects.get(id=lesson_id)
-            test = Test.objects.select_related('unit').get(unit=unit)
-            test_serialized = TestSerializer(test)
+            lesson = Lesson.objects.get(id=lesson_id)
+            test = Test.objects.filter(lesson=lesson)
+            test_serialized = TestSerializer(test,many=True)
             return Response({'test': test_serialized.data})
         except Subjects.DoesNotExist:
             raise NotFound('Unit not found.')
@@ -84,19 +84,25 @@ class TestEvaluationView(APIView):
         wrong_answers = 0
         for question_id, selected_option_id in answers.items():
             # Check if the selected option is correct for the respective question
-            if correct_options.filter(question_id=question_id, id=selected_option_id).exists():
-                correct_answers += 1
-            elif answers[question_id] == '':
-                skipped += 1
-            else:
-                wrong_answers += 1
+            try:
+                if correct_options.filter(question_id=question_id, id=selected_option_id).exists():
+                    correct_answers += 1
+                elif answers[question_id] == '':
+                    skipped += 1
+                else:
+                    wrong_answers += 1
+            except:
+                continue
         score = (correct_answers / total_questions) * 100
         test.score = score
         test.correct_answers = correct_answers
         test.wrong_answers = wrong_answers
+        test.skipped=skipped
         test.save()
         testserialized=TestSerializer(test)
         mytest=testserialized.data
+        my_response={'data':total_questions}
+        #return Response(my_response)
         return Response(mytest)
 
 

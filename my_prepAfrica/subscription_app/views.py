@@ -14,14 +14,44 @@ from .models import SubscribedUser
 
 
 CustomUser=get_user_model()
+
+class PayStackAPISubscriptionView(APIView):
+        authentication_classes = [JWTAuthentication]  # Use JWT Authentication
+        permission_classes = [IsAuthenticated]
+        
+        def post(self,request,**kwargs):
+            plan=kwargs['plan']
+            userEmail=request.user.email
+            #!/bin/sh
+            url="https://api.paystack.co/subscription"
+            access_key="sk_test_4919e55cc28eefb19f14acfe1b7c351f65b51345"
+            data={ 
+              "customer":userEmail, 
+              "plan": plan,
+            }
+            headers={
+                "Authorization":f"Bearer {access_key}"
+            }
+            response=requests.post(url, headers=headers, json=data)
+            return Response(response.json())
+
+
+
+                            
+
+
+
+    
+
 class MakePayment(APIView):
     authentication_classes = [JWTAuthentication]  # Use JWT Authentication
     permission_classes = [IsAuthenticated]
     def post(self, request):
+        
         userEmail=request.user.email
         # send an api request to intialize transaction
         url = "https://api.paystack.co/transaction/initialize"
-        secret_key = "YOUR_SECRET_KEY"
+        secret_key = "sk_test_4919e55cc28eefb19f14acfe1b7c351f65b51345"
         headers = {
             "Authorization": f"Bearer sk_test_4919e55cc28eefb19f14acfe1b7c351f65b51345",
             "Content-Type": "application/json",
@@ -29,6 +59,7 @@ class MakePayment(APIView):
         data = {
             "email":userEmail,
             "amount": "10000",
+            "plan":"PLN_xdqn93oljibez0b"
         }
 
         try:
@@ -65,7 +96,7 @@ class VerifyPaymentAndSubscribe(APIView):
                 user = request.user
                 try:
                   GetSubscribedUser = SubscribedUser.objects.get(user=user)
-                except:
+                except SubscribedUser.DoesNotExist:
           
                   GetSubscribedUser = SubscribedUser.objects.create(user=user)
                 GetSubscribedUser.is_subscribed = True  
@@ -135,9 +166,5 @@ class VerifyUSerSubscribed(APIView):
 
    
     # Add more functions for handling other event types as needed
-
-                            
-
-
 
     

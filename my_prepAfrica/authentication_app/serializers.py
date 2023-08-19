@@ -25,11 +25,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             try:
                 user = CustomUser.objects.get(email=email)
             except:
-                raise AuthenticationFailed("No active account found2 with the given credentials")
+                raise AuthenticationFailed("Invalid Email")
 
-            if not user.check_password(password):
+            if  not user.check_password(password):
                 print(password)
-                raise AuthenticationFailed("No active account found with the given credentials")
+                raise AuthenticationFailed("No active account found with the given password")
         else:
             raise AuthenticationFailed("Both email and password are required.")
 

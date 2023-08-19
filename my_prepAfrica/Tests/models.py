@@ -9,6 +9,10 @@ class Test(models.Model):
     score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     correct_answers = models.PositiveIntegerField(blank=True, null=True)
     wrong_answers = models.PositiveIntegerField(blank=True, null=True)
+    skipped=models.PositiveBigIntegerField(blank=True,null=True)
+   
+    def __str__(self):
+       return self.title
    
 
 class Question(models.Model):

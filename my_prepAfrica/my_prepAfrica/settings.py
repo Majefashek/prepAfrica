@@ -48,8 +48,8 @@ INSTALLED_APPS = [
     'subscription_app',
     'dj_paystack',
     'sslserver',
+ 'ProgressTrackkingApp',
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

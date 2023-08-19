@@ -35,8 +35,20 @@ class SignUpView(APIView):
         password = request.data.get('password')
         print(email)
         print(password)
+        if email:
+            if password:
 
-        newuser, created = CustomUser.objects.get_or_create(email=email, defaults={'password': password})
+                newuser, created = CustomUser.objects.get_or_create(email=email)
+                newuser.set_password(password)
+                newuser.save()
+                return Response({'message':'Succesfully registered'})
+            else:
+                return Response({'Error':'Please Provide Password'})
+        else:
+                return Response({'Error':'Please Provide Password'})
+
+
+
 
         if not created:
             # User with the same email already exists, handle the error accordingly
