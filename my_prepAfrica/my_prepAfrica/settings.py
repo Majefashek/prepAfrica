@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -181,6 +182,7 @@ SIMPLE_JWT = {
 }
 PAYSTACK_PUBLIC_KEY = 'pk_test_1e0b43a7c0bf23b2d3cece99f87c0b0d7f7faf09'
 PAYSTACK_SECRET_KEY = 'sk_test_4919e55cc28eefb19f14acfe1b7c351f65b51345'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
     
